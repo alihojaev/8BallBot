@@ -1,3 +1,4 @@
+import org.apache.commons.lang3.StringUtils;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
@@ -9,9 +10,6 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 
 
 public class BotRunner {
@@ -21,7 +19,7 @@ public class BotRunner {
     }
 
     public static void main(String[] args) throws TelegramApiRequestException {
-        final TelegramBotImpl bot = new TelegramBotImpl();
+        final var bot = new TelegramBotImpl();
         new TelegramBotsApi()
                 .registerBot(bot);
     }
@@ -64,9 +62,10 @@ public class BotRunner {
             return "1084533433:AAHm5sHOf1rsWKCI1JG-M945u8IYE-52728";
         }
 
-        private String getMessage(String msg) {
-            ArrayList<KeyboardRow> keyboard = new ArrayList<>();
-            KeyboardRow keyboardRow = new KeyboardRow();
+        private String getMessage(final String msg) {
+            var lowerCaseMessage = msg.toLowerCase();
+            final var keyboard = new ArrayList<KeyboardRow>();
+            final var keyboardRow = new KeyboardRow();
 
             replyKeyboardMarkup.setSelective(true);
             replyKeyboardMarkup.setResizeKeyboard(true);
@@ -80,46 +79,45 @@ public class BotRunner {
                 replyKeyboardMarkup.setKeyboard(keyboard);
 
                 return this.getRandomMessage();
-            } else if (msg.equals("Шишки") || msg.equals("шишки")) {
+            } else if (StringUtils.contains(lowerCaseMessage, "шишки")) {
                 return "Наше все";
-            } else if (msg.equals("Админ - петух") || msg.equals("админ - петух") || msg.equals("админ петух") || msg.equals("Админ петух")) {
+            } else if (StringUtils.contains(lowerCaseMessage, "питух") && StringUtils.contains(lowerCaseMessage, "админ")) {
                 return "Сам петух \uD83D\uDC13";
             } else {
-                return "Я не понимаю";
+                return "Али гей";
             }
         }
 
         private String getRandomMessage() {
-
-            final Random random = new Random();
+            final var random = new Random();
             return content.get(random.nextInt(3))
                     .get(random.nextInt(4));
         }
 
         private Map<Integer, List<String>> getCases() {
-            final Map<Integer, List<String>> data = new HashMap<Integer, List<String>>();
-            final List<String> firstCases = new ArrayList<String>();
+            final var data = new HashMap<Integer, List<String>>();
+            final var firstCases = new ArrayList<String>();
+            final var secondCases = new ArrayList<String>();
+            final var thirdCases = new ArrayList<String>();
+            final var fourthCases = new ArrayList<String>();
             firstCases.add("Бесспорно");
             firstCases.add("Предрешено");
             firstCases.add("Никаких сомнений");
             firstCases.add("Определенно да");
             firstCases.add("Можешь быть уверен в этом");
             data.put(0, firstCases);
-            final List<String> secondCases = new ArrayList<String>();
             secondCases.add("Мне кажется — «да»");
             secondCases.add("Вероятнее всего");
             secondCases.add("Хорошие перспективы");
             secondCases.add("Знаки говорят — «да»");
             secondCases.add("Да");
             data.put(1, secondCases);
-            final List<String> thirdCases = new ArrayList<String>();
             thirdCases.add("Пока не ясно, попробуй снова");
             thirdCases.add("Спроси позже");
             thirdCases.add("Лучше не рассказывать");
             thirdCases.add("Сейчас нельзя предсказать");
             thirdCases.add("Сконцентрируйся и спроси опять");
             data.put(2, thirdCases);
-            final List<String> fourthCases = new ArrayList<String>();
             fourthCases.add("Даже не думай");
             fourthCases.add("Мой ответ — «нет»");
             fourthCases.add("По моим данным — «нет»");
