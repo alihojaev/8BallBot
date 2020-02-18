@@ -9,6 +9,10 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.net.ServerSocket;
 import java.util.*;
 
 
@@ -18,10 +22,47 @@ public class BotRunner {
         ApiContextInitializer.init();
     }
 
-    public static void main(String[] args) throws TelegramApiRequestException {
+    private static boolean isApplicationRun = true;
+
+    public static void main(String[] args) {
         final var bot = new TelegramBotImpl();
-        new TelegramBotsApi()
-                .registerBot(bot);
+        var tgBotThread = new Thread(() -> {
+            try {
+                new TelegramBotsApi()
+                        .registerBot(bot);
+            } catch (TelegramApiRequestException e) {
+                e.printStackTrace();
+                isApplicationRun = false;
+            }
+        });
+        tgBotThread.setDaemon(true);
+        tgBotThread.start();
+        try (final var serverSocket = new ServerSocket(8089)) {
+            while (isApplicationRun) {
+                try (final var clientSocket = serverSocket.accept()) {
+//                    try (final var clientDataInputStream = clientSocket.getInputStream()) {
+//                        var dataBufferedReader =
+//                                new BufferedReader(
+//                                        new InputStreamReader(clientDataInputStream));
+//                        final var data = dataBufferedReader.readLine();
+//                        if (data != null && data.equals("disable")) {
+//                            isApplicationRun = false;
+//                        }
+//                    }
+                    final var writer =
+                            new BufferedWriter(
+                                    new OutputStreamWriter(clientSocket.getOutputStream()));
+                    writer.write("Али лох");
+                    writer.flush();
+                    isApplicationRun = false;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Finish");
     }
 
     private static class TelegramBotImpl extends TelegramLongPollingBot {
